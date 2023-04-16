@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:lexicon/model/user.dart';
 import 'package:lexicon/services/user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AddUser extends StatefulWidget {
   const AddUser({Key? key}) : super(key: key);
@@ -17,6 +20,60 @@ class _AddUserState extends State<AddUser> {
   bool _validateContact = false;
   bool _validateDescription = false;
   var _userService=UserService();
+
+  /*
+  {"responseData":{
+    "translatedText":"Ciao Mondo!",
+    "match":1},
+  "quotaFinished":false,
+  "mtLangSupported":null,
+  "responseDetails":"",
+  "responseStatus":200,
+  "responderId":null,
+  "exception_code":null,
+  "matches":[{
+    "id":"718900173",
+    "segment":
+    "Hello World!",
+    "translation":"Ciao Mondo!",
+    "source":"en-GB",
+    "target":"it-IT",
+    "quality":"74",
+    "reference":null,
+    "usage-count":2,
+    "subject":"All",
+    "created-by":"MateCat",
+    "last-updated-by":"MateCat",
+    "create-date":"2023-04-14 06:35:33",
+    "last-update-date":"2023-04-14 06:35:33",
+    "match":1}]
+  }
+  */
+  //
+  Future<String> translate(String text, String sourceLanguage, String targetLanguage) async {
+
+    var url = Uri.parse('https://api.mymemory.translated.net/get?q=${text.replaceAll(" ", "%20")}&langpair=es|en');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      // var data = json.decode(response.body);
+      // return data['data']['translations'][0]['translatedText'];
+
+
+      String body = utf8.decode(response.bodyBytes);
+      final jsonData = jsonDecode(body);
+      print("WOOHOOOOOOOO!!!!!!!!!!!!");
+      print(jsonData["responseData"]["translatedText"]);
+      /**/
+      return jsonData["responseData"]["translatedText"];
+    } else {
+      throw Exception('Failed to translate text');
+    }
+  }
+  //
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +160,8 @@ class _AddUserState extends State<AddUser> {
                           // print("Good Data Can Save");
                           var _user = User();
                           _user.name = _userNameController.text;
-                          _user.contact = _userContactController.text;
+                          // await translate(spanishWord, 'es', 'en');
+                          _user.contact = await translate(_userNameController.text, 'es', 'en');//_userContactController.text;
                           _user.description = _userDescriptionController.text;
                           var result=await _userService.SaveUser(_user);
                           Navigator.pop(context,result);
