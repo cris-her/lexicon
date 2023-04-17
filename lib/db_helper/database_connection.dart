@@ -11,7 +11,7 @@ class DatabaseConnection{
   }
   Future<void>_createDatabase(Database database, int version) async {
     String sql=
-        "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, contact TEXT, description TEXT);";
+        "CREATE TABLE words (id INTEGER PRIMARY KEY, spanish TEXT, english TEXT, note TEXT);";
     await database.execute(sql);
   }
 }

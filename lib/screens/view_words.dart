@@ -1,21 +1,21 @@
-import 'package:lexicon/model/user.dart';
+import 'package:lexicon/model/word.dart';
 import 'package:flutter/material.dart';
 
-class ViewUser extends StatefulWidget {
-  final User user;
+class ViewWord extends StatefulWidget {
+  final Word word;
 
-  const ViewUser({Key? key, required this.user}) : super(key: key);
+  const ViewWord({Key? key, required this.word}) : super(key: key);
 
   @override
-  State<ViewUser> createState() => _ViewUserState();
+  State<ViewWord> createState() => _ViewWordState();
 }
 
-class _ViewUserState extends State<ViewUser> {
+class _ViewWordState extends State<ViewWord> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("SQLite CRUD"),
+          title: const Text("Detalle"),
         ),
         body: Container(
           padding: EdgeInsets.all(16.0),
@@ -23,7 +23,7 @@ class _ViewUserState extends State<ViewUser> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Full Details",
+                "Palabra o frase",
                 style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Colors.blueGrey,
@@ -34,14 +34,14 @@ class _ViewUserState extends State<ViewUser> {
               ),
               Row(
                 children: [
-                  const Text('Name',
+                  const Text('Español',
                       style: TextStyle(
                           color: Colors.teal,
                           fontSize: 16,
                           fontWeight: FontWeight.w600)),
                   Padding(
                     padding: const EdgeInsets.only(left: 30),
-                    child: Text(widget.user.name ?? '', style: TextStyle(fontSize: 16)),
+                    child: Text(widget.word.spanish ?? '', style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
@@ -50,14 +50,14 @@ class _ViewUserState extends State<ViewUser> {
               ),
               Row(
                 children: [
-                  const Text('Contact',
+                  const Text('Inglés',
                       style: TextStyle(
                           color: Colors.teal,
                           fontSize: 16,
                           fontWeight: FontWeight.w600)),
                   Padding(
                     padding: const EdgeInsets.only(left: 25),
-                    child: Text(widget.user.contact ?? '', style: TextStyle(fontSize: 16)),
+                    child: Text(widget.word.english ?? '', style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
@@ -67,7 +67,7 @@ class _ViewUserState extends State<ViewUser> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Description',
+                  const Text('Nota',
                       style: TextStyle(
                           color: Colors.teal,
                           fontSize: 16,
@@ -75,7 +75,7 @@ class _ViewUserState extends State<ViewUser> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Text(widget.user.description ?? '', style: const TextStyle(fontSize: 16)),
+                  Text(widget.word.note ?? '', style: const TextStyle(fontSize: 16)),
                 ],
               )
             ],

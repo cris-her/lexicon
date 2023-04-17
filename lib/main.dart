@@ -1,8 +1,8 @@
-import 'package:lexicon/model/user.dart';
-import 'package:lexicon/screens/edit_user.dart';
-import 'package:lexicon/screens/add_user.dart';
-import 'package:lexicon/screens/view_users.dart';
-import 'package:lexicon/services/user_service.dart';
+import 'package:lexicon/model/word.dart';
+import 'package:lexicon/screens/edit_word.dart';
+import 'package:lexicon/screens/add_word.dart';
+import 'package:lexicon/screens/view_words.dart';
+import 'package:lexicon/services/word_service.dart';
 
 import 'package:flutter/material.dart';
 
@@ -17,11 +17,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Lexicon',
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: const MyHomePage(title: 'Lexicon Home Page'),
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(title: 'Lexicon'),
     );
   }
 }
@@ -38,27 +39,27 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  late List<User> _userList = <User>[];
-  final _userService = UserService();
+  late List<Word> _wordList = <Word>[];
+  final _wordService = WordService();
 
-  getAllUserDetails() async {
-    var users = await _userService.readAllUsers();
-    _userList = <User>[];
-    users.forEach((user) {
+  getAllWordDetails() async {
+    var words = await _wordService.readAllWords();
+    _wordList = <Word>[];
+    words.forEach((word) {
       setState(() {
-        var userModel = User();
-        userModel.id = user['id'];
-        userModel.name = user['name'];
-        userModel.contact = user['contact'];
-        userModel.description = user['description'];
-        _userList.add(userModel);
+        var wordModel = Word();
+        wordModel.id = word['id'];
+        wordModel.spanish = word['spanish'];
+        wordModel.english = word['english'];
+        wordModel.note = word['note'];
+        _wordList.add(wordModel);
       });
     });
   }
 
   @override
   void initState() {
-    getAllUserDetails();
+    getAllWordDetails();
     super.initState();
   }
 
@@ -70,13 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _deleteFormDialog(BuildContext context, userId) {
+  _deleteFormDialog(BuildContext context, wordId) {
     return showDialog(
         context: context,
         builder: (param) {
           return AlertDialog(
             title: const Text(
-              'Are You Sure to Delete',
+              '¿Está seguro que desea eliminar?',
               style: TextStyle(color: Colors.teal, fontSize: 20),
             ),
             actions: [
@@ -85,15 +86,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       primary: Colors.white, // foreground
                       backgroundColor: Colors.red),
                   onPressed: ()  async{
-                    var result=await _userService.deleteUser(userId);
+                    var result=await _wordService.deleteWord(wordId);
                     if (result != null) {
                       Navigator.pop(context);
-                      getAllUserDetails();
+                      getAllWordDetails();
                       _showSuccessSnackBar(
-                          'User Detail Deleted Success');
+                          'Eliminado');
                     }
                   },
-                  child: const Text('Delete')),
+                  child: const Text('Sí')),
               TextButton(
                   style: TextButton.styleFrom(
                       primary: Colors.white, // foreground
@@ -101,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('Close'))
+                  child: const Text('No'))
             ],
           );
         });
@@ -111,10 +112,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title, style: const TextStyle(fontStyle: FontStyle.italic),),
       ),
       body: ListView.builder(
-          itemCount: _userList.length,
+          itemCount: _wordList.length,
           itemBuilder: (context, index) {
             return Card(
               child: ListTile(
@@ -122,13 +123,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ViewUser(
-                            user: _userList[index],
+                          builder: (context) => ViewWord(
+                            word: _wordList[index],
                           )));
                 },
-                leading: const Icon(Icons.person),
-                title: Text(_userList[index].name ?? ''),
-                subtitle: Text(_userList[index].contact ?? ''),
+                // leading: const Icon(Icons.person),
+                title: Text(_wordList[index].english ?? ''),
+                subtitle: Text(_wordList[index].spanish ?? ''),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -137,13 +138,13 @@ class _MyHomePageState extends State<MyHomePage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => EditUser(
-                                    user: _userList[index],
+                                  builder: (context) => EditWord(
+                                    word: _wordList[index],
                                   ))).then((data) {
                             if (data != null) {
-                              getAllUserDetails();
+                              getAllWordDetails();
                               _showSuccessSnackBar(
-                                  'User Detail Updated Success');
+                                  'Actualizado');
                             }
                           });
                           ;
@@ -154,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         )),
                     IconButton(
                         onPressed: () {
-                          _deleteFormDialog(context, _userList[index].id);
+                          _deleteFormDialog(context, _wordList[index].id);
                         },
                         icon: const Icon(
                           Icons.delete,
@@ -168,11 +169,11 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddUser()))
+              MaterialPageRoute(builder: (context) => const AddWord()))
               .then((data) {
             if (data != null) {
-              getAllUserDetails();
-              _showSuccessSnackBar('User Detail Added Success');
+              getAllWordDetails();
+              _showSuccessSnackBar('Agregado');
             }
           });
         },

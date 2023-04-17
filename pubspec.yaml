@@ -40,6 +40,8 @@ dependencies:
   path_provider: ^2.0.14
   path: ^1.8.2
   http: ^0.13.5
+  flutter_launcher_icons: ^0.13.0
+  flutter_native_splash: ^2.2.19
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +56,16 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+
+flutter_icons:
+  image_path: "assets/lexicon.png"
+  android: true
+  ios: true
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: "assets/lexicon.png"
 
 # The following section is specific to Flutter packages.
 flutter:
