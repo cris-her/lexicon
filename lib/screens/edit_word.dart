@@ -119,13 +119,15 @@ class _EditWordState extends State<EditWord> {
                               _word.note = _wordNoteController.text.isEmpty
                                   ? " "
                                   : _wordNoteController.text;
-                              _word.creationDate =
+                              _word.datetime =
                                   DateTime.now().millisecondsSinceEpoch;
 
                               var result = await _wordService.UpdateWord(_word);
                               _isLoading = false;
 
                               Navigator.pop(context, result);
+                            } else {
+                              _isLoading = false;
                             }
                           },
                           child: const Text('Actualizar')),

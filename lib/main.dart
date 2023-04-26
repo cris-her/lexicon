@@ -43,20 +43,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   getAllWordDetails() async {
     var words = await _wordService.readAllWords();
-    _wordList = <Word>[];
+
+    List<Word> wordList = <Word>[]; // Create a local variable to store the words
     words.forEach((word) {
-      setState(() {
-        var wordModel = Word();
-        wordModel.id = word['id'];
-        wordModel.spanish = word['spanish'];
-        wordModel.english = word['english'];
-        wordModel.note = word['note'];
-        wordModel.creationDate = word['creation_date'];
-        _wordList.add(wordModel);
-      });
+      var wordModel = Word();
+      wordModel.id = word['id'];
+      wordModel.spanish = word['spanish'];
+      wordModel.english = word['english'];
+      wordModel.note = word['note'];
+      wordModel.datetime = word['datetime'];
+      wordList.add(wordModel); // Add the word to the local variable
     });
 
-    _originalWordList = _wordList;
+    setState(() {
+      _wordList = wordList; // Update the state with the local variable
+      _originalWordList = _wordList;
+    });
+
   }
 
   @override
@@ -119,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _wordList.sort((a, b) => b.creationDate!.compareTo(a.creationDate!));
+    _wordList.sort((a, b) => b.datetime!.compareTo(a.datetime!));
 
     return Scaffold(
       appBar: AppBar(
@@ -150,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'Search...',
+                hintText: 'Buscar',
                 border: InputBorder.none,
                 prefixIcon: Icon(Icons.search),
               ),

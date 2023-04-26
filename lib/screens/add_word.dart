@@ -139,6 +139,8 @@ class _AddWordState extends State<AddWord> {
                               textStyle: const TextStyle(fontSize: 15)),
                           onPressed: () async {
                             setState(() {
+                              _isLoading = true;
+
                               (_spanishWordController.text.isEmpty ^
                                       _englishWordController.text.isEmpty)
                                   ? _validateSpanish = false
@@ -155,6 +157,9 @@ class _AddWordState extends State<AddWord> {
                                   await Connectivity().checkConnectivity();
                               if (connectivityResult ==
                                   ConnectivityResult.none) {
+
+                                _isLoading = false;
+
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -175,7 +180,6 @@ class _AddWordState extends State<AddWord> {
                                   },
                                 );
                               } else {
-                                _isLoading = true;
 
                                 var _word = Word();
                                 _word.spanish = _spanishWordController
@@ -191,7 +195,7 @@ class _AddWordState extends State<AddWord> {
                                 _word.note = _wordNoteController.text.isEmpty
                                     ? " "
                                     : _wordNoteController.text;
-                                _word.creationDate =
+                                _word.datetime =
                                     DateTime.now().millisecondsSinceEpoch;
 
                                 var result = await _wordService.SaveWord(_word);
@@ -199,6 +203,8 @@ class _AddWordState extends State<AddWord> {
 
                                 Navigator.pop(context, result);
                               }
+                            } else  {
+                              _isLoading = false;
                             }
                           },
                           child: const Text('Guardar')),
