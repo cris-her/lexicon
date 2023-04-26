@@ -11,7 +11,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  //  const MyApp({Key? key}) : super(key: key);
   const MyApp({super.key});
 
   @override
@@ -28,7 +27,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  //  const MyHomePage({Key? key}) : super(key: key);
   const MyHomePage({super.key, required this.title});
 
   final String title;
@@ -38,9 +36,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   late List<Word> _wordList = <Word>[];
+  late List<Word> _originalWordList = <Word>[];
   final _wordService = WordService();
+  TextEditingController _searchController = TextEditingController();
 
   getAllWordDetails() async {
     var words = await _wordService.readAllWords();
@@ -52,9 +51,12 @@ class _MyHomePageState extends State<MyHomePage> {
         wordModel.spanish = word['spanish'];
         wordModel.english = word['english'];
         wordModel.note = word['note'];
+        wordModel.creationDate = word['creation_date'];
         _wordList.add(wordModel);
       });
     });
+
+    _originalWordList = _wordList;
   }
 
   @override
@@ -71,34 +73,34 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _deleteFormDialog(BuildContext context, wordId) {
+  _deleteFormDialog(BuildContext context, wordId, englishWord, spanishWord) {
     return showDialog(
         context: context,
         builder: (param) {
           return AlertDialog(
-            title: const Text(
-              '¿Está seguro que desea eliminar?',
+            title: Text(
+              '¿Está seguro que desea eliminar $englishWord ($spanishWord)?',
               style: TextStyle(color: Colors.teal, fontSize: 20),
             ),
             actions: [
               TextButton(
                   style: TextButton.styleFrom(
-                      primary: Colors.white, // foreground
-                      backgroundColor: Colors.red),
-                  onPressed: ()  async{
-                    var result=await _wordService.deleteWord(wordId);
+                      primary: Colors.white, backgroundColor: Colors.red),
+                  onPressed: () async {
+                    var result = await _wordService.deleteWord(wordId);
                     if (result != null) {
                       Navigator.pop(context);
                       getAllWordDetails();
-                      _showSuccessSnackBar(
-                          'Eliminado');
+
+                      _onClearSearch();
+
+                      _showSuccessSnackBar('Eliminado');
                     }
                   },
                   child: const Text('Sí')),
               TextButton(
                   style: TextButton.styleFrom(
-                      primary: Colors.white, // foreground
-                      backgroundColor: Colors.teal),
+                      primary: Colors.white, backgroundColor: Colors.teal),
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -108,70 +110,125 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  void _onClearSearch() {
+    setState(() {
+      _searchController.clear();
+      _wordList = _originalWordList.toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _wordList.sort((a, b) => b.creationDate!.compareTo(a.creationDate!));
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title, style: const TextStyle(fontStyle: FontStyle.italic),),
+        title: Text(
+          widget.title,
+          style: const TextStyle(fontStyle: FontStyle.italic),
+        ),
       ),
-      body: ListView.builder(
-          itemCount: _wordList.length,
-          itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ViewWord(
-                            word: _wordList[index],
-                          )));
-                },
-                // leading: const Icon(Icons.person),
-                title: Text(_wordList[index].english ?? ''),
-                subtitle: Text(_wordList[index].spanish ?? ''),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditWord(
-                                    word: _wordList[index],
-                                  ))).then((data) {
-                            if (data != null) {
-                              getAllWordDetails();
-                              _showSuccessSnackBar(
-                                  'Actualizado');
-                            }
-                          });
-                          ;
-                        },
-                        icon: const Icon(
-                          Icons.edit,
-                          color: Colors.teal,
-                        )),
-                    IconButton(
-                        onPressed: () {
-                          _deleteFormDialog(context, _wordList[index].id);
-                        },
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                        ))
-                  ],
-                ),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _wordList = value.isEmpty
+                      ? _originalWordList.toList()
+                      : _originalWordList
+                          .where((word) =>
+                              word.english!
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()) ||
+                              word.spanish!
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()))
+                          .toList();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search...',
+                border: InputBorder.none,
+                prefixIcon: Icon(Icons.search),
               ),
-            );
-          }),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+                itemCount: _wordList.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ViewWord(
+                                      word: _wordList[index],
+                                    )));
+                      },
+                      title: Text(_wordList[index].english ?? ''),
+                      subtitle: Text(_wordList[index].spanish ?? ''),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => EditWord(
+                                              word: _wordList[index],
+                                            ))).then((data) {
+                                  if (data != null) {
+                                    _onClearSearch();
+                                    getAllWordDetails();
+
+                                    _showSuccessSnackBar('Actualizado');
+                                  }
+                                });
+                              },
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.teal,
+                              )),
+                          IconButton(
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+                                _deleteFormDialog(
+                                    context,
+                                    _wordList[index].id,
+                                    _wordList[index].english,
+                                    _wordList[index].spanish);
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ))
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          FocusScope.of(context).unfocus();
+
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddWord()))
+                  MaterialPageRoute(builder: (context) => const AddWord()))
               .then((data) {
             if (data != null) {
+              _onClearSearch();
               getAllWordDetails();
               _showSuccessSnackBar('Agregado');
             }
@@ -179,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         tooltip: 'Agregar',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }

@@ -41,7 +41,8 @@ class _ViewWordState extends State<ViewWord> {
                           fontWeight: FontWeight.w600)),
                   Padding(
                     padding: const EdgeInsets.only(left: 30),
-                    child: Text(widget.word.spanish ?? '', style: TextStyle(fontSize: 16)),
+                    child: Text(widget.word.spanish ?? '',
+                        style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
@@ -57,7 +58,8 @@ class _ViewWordState extends State<ViewWord> {
                           fontWeight: FontWeight.w600)),
                   Padding(
                     padding: const EdgeInsets.only(left: 25),
-                    child: Text(widget.word.english ?? '', style: TextStyle(fontSize: 16)),
+                    child: Text(widget.word.english ?? '',
+                        style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
@@ -75,7 +77,8 @@ class _ViewWordState extends State<ViewWord> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Text(widget.word.note ?? '', style: const TextStyle(fontSize: 16)),
+                  Text(widget.word.note ?? '',
+                      style: const TextStyle(fontSize: 16)),
                 ],
               )
             ],
